@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>libmynteye</name>
+  <version>0.0.0</version>
+  <description>The mynt eye sdk package</description>
+
+  <maintainer email="johnzhao@slightech.com">John Zhao</maintainer>
+
+  <license>Slightech License</license>
+
+  <!-- <url type="website">http://wiki.ros.org/mynt_eye_ros_wrapper</url> -->
+
+  <author email="johnzhao@slightech.com">John Zhao</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>libopencv-dev</build_depend>
+  <build_depend>libboost-all-dev</build_depend>
+ 
+
+
+</package>
