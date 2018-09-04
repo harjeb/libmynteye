@@ -44,6 +44,9 @@ message(STATUS "CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # packages
 
+find_package(opencv REQUIRED)
+
+
 LIST(APPEND CMAKE_PREFIX_PATH third_party/glog/_build)
 find_package(glog REQUIRED)
 message(STATUS "Found glog: ${glog_VERSION}")
