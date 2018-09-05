@@ -16,6 +16,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -25,12 +28,13 @@
 #include <linux/uvcvideo.h>
 #include <linux/videodev2.h>
 
-#include <glog/logging.h>
-
 #include <chrono>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <thread>
+
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -40,6 +44,10 @@ namespace uvc {
   do {                                                                     \
     LOG(severity) << str << " error " << errno << ", " << strerror(errno); \
   } while (0)
+
+#define NO_DATA_MAX_COUNT 200
+
+int no_data_count = 0;
 
 /*
 class device_error : public std::exception {
@@ -194,6 +202,7 @@ struct device {
   ~device() {
     VLOG(2) << __func__;
     stop_streaming();
+    no_data_count = 0;
     if (fd != -1 && close(fd) < 0) {
       LOG_ERROR(WARNING, "close");
     }
@@ -386,6 +395,14 @@ struct device {
             throw_error("VIDIOC_QBUF");
         });
       }
+
+      no_data_count = 0;
+    } else {
+      no_data_count++;
+    }
+
+    if (no_data_count > NO_DATA_MAX_COUNT) {
+      throw_error("v4l2 get stream time out!");
     }
   }
 
