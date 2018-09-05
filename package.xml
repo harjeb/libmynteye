@@ -13,7 +13,7 @@
   <author email="johnzhao@slightech.com">John Zhao</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <!--<build_depend>libopencv-dev</build_depend> -->
+  <build_depend>libopencv-dev</build_depend>
  
 
 
