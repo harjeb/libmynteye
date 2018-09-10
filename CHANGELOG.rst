@@ -6,6 +6,14 @@ Changelog for package libmynteye
 ------------------
 * first version
 
+Forthcoming
+-----------
+* update v
+* Merge pull request `#1 <https://github.com/harjeb/libmynteye/issues/1>`_ from harjeb/dev
+  test del libopencv
+* test del libopencv
+* Contributors: harjeb
+
 0.1.1 (2018-09-06)
 ------------------
 * modify package version
