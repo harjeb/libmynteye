@@ -21,3 +21,7 @@ Forthcoming
 0.1.2 (2018-09-10)
 ------------------
 * change libopencv to Opencv3
+
+0.1.3 (2018-09-25)
+------------------
+* error with Opencv3 so return to libopencv
