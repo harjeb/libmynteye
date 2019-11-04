@@ -12,278 +12,132 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8.3)
+project(mynt_eye_ros_wrapper)
 
-project(mynteye VERSION 2.0.1 LANGUAGES C CXX)
-
-include(cmake/Common.cmake)
-
-# options
-
-include(cmake/Option.cmake)
-
-# flags
-
-if(OS_WIN)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
 endif()
-
-include(cmake/DetectCXX11.cmake)
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-
-string(STRIP "${CMAKE_C_FLAGS}" CMAKE_C_FLAGS)
-string(STRIP "${CMAKE_CXX_FLAGS}" CMAKE_CXX_FLAGS)
-message(STATUS "C_FLAGS: ${CMAKE_C_FLAGS}")
-message(STATUS "CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # packages
 
-find_package(Threads QUIET)
+function(checkPackage package customMessage)
+  set(varName "${package}_FOUND")
+  if (NOT "${${varName}}")
+    string(REPLACE "_" "-" aptPackage ${package})
+    if("${customMessage}" STREQUAL "")
+      message(FATAL_ERROR "\n\n ${package} is missing, please try to install it with:\n sudo apt-get install ros-$(rosversion -d)-${aptPackage}\n\n")
+    else()
+      message(FATAL_ERROR "\n\n ${customMessage} \n\n")
+    endif()
+  endif()
+endfunction(checkPackage)
 
-macro(target_link_threads NAME)
-  if(THREADS_HAVE_PTHREAD_ARG)
-    target_compile_options(PUBLIC ${NAME} "-pthread")
-  endif()
-  if(CMAKE_THREAD_LIBS_INIT)
-    target_link_libraries(${NAME} "${CMAKE_THREAD_LIBS_INIT}")
-  endif()
-endmacro()
+find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  geometry_msgs
+  image_transport
+  message_generation
+  nodelet
+  roscpp
+  sensor_msgs
+  std_msgs
+  tf
+)
+
+checkPackage("cv_bridge" "")
+checkPackage("geometry_msgs" "")
+checkPackage("image_transport" "")
+checkPackage("message_generation" "")
+checkPackage("nodelet" "")
+checkPackage("roscpp" "")
+checkPackage("sensor_msgs" "")
+checkPackage("std_msgs" "")
+checkPackage("tf" "")
+
+## messages
+
+add_service_files(
+  FILES
+  GetInfo.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
+catkin_package(
+  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport message_runtime nodelet roscpp sensor_msgs std_msgs tf
+)
+
+#get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
+#LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
 
 LIST(APPEND CMAKE_MODULE_PATH cmake)
 
-include(CMakePackageConfigHelpers)
+find_package(mynteye REQUIRED)
+message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
-# config
-
-set(MYNTEYE_NAME ${PROJECT_NAME})
-
-set(MYNTEYE_NAMESPACE "mynteye")
-message(STATUS "Namespace: ${MYNTEYE_NAMESPACE}")
-
-if(MSVC)
-  string(REPLACE "/" "\\\\" MYNTEYE_SDK_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-  string(REPLACE "/" "\\\\" MYNTEYE_SDK_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
-else()
-  file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" MYNTEYE_SDK_ROOT_DIR)
-  file(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" MYNTEYE_SDK_INSTALL_DIR)
+if(NOT mynteye_WITH_API)
+  message(FATAL_ERROR "Must with API layer :(")
 endif()
 
-configure_file(
-  include/mynteye/mynteye.h.in
-  include/mynteye/mynteye.h @ONLY
-)
+find_package(OpenCV REQUIRED)
+
+if(mynteye_WITH_GLOG)
+  find_package(glog REQUIRED)
+endif()
 
 # targets
 
-add_definitions(-DMYNTEYE_EXPORTS)
+add_compile_options(-std=c++11)
 
-set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
-set_outdir(
-  "${OUT_DIR}/lib"
-  "${OUT_DIR}/lib"
-  "${OUT_DIR}/bin"
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${SDK_DIR}/src
 )
 
-set(MYNTEYE_CMAKE_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
-set(MYNTEYE_CMAKE_BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
-set(MYNTEYE_CMAKE_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(MYNTEYE_CMAKE_INSTALLDIR "${MYNTEYE_CMAKE_LIBDIR}/cmake/${MYNTEYE_NAME}")
-
-## main
-
-if(WITH_GLOG)
-  add_executable(main src/main.cc)
-  target_link_libraries(main glog::glog)
-  target_include_directories(main PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/include
-  )
-endif()
-
-## libmynteye
-
-if(NOT WITH_GLOG)
-  set(__MINIGLOG_FLAGS "-Wno-unused-parameter -Wno-format -Wno-return-type")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
-  unset(__MINIGLOG_FLAGS)
-endif()
-
-set(MYNTEYE_PUBLIC_H
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/logger.h
-  ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/utils.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/context.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/device.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/files.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/strings.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/times.h
+set(LINK_LIBS
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  mynteye
 )
-if(WITH_API)
-  list(APPEND MYNTEYE_PUBLIC_H
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/api.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/plugin.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/processor/object.h
-  )
-endif()
-if(NOT WITH_GLOG)
-  list(APPEND MYNTEYE_PUBLIC_H
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
-  )
-endif()
 
-if(OS_WIN)
-  set(UVC_SRC src/uvc/uvc-wmf.cc)
-elseif(OS_MAC)
-  set(UVC_SRC src/uvc/uvc-libuvc.cc)
+add_library(mynteye_wrapper src/wrapper_nodelet.cc)
+target_link_libraries(mynteye_wrapper ${LINK_LIBS})
+add_dependencies(mynteye_wrapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-  find_package(libuvc REQUIRED)
-  set(UVC_LIB ${libuvc_LIBRARIES})
+add_executable(mynteye_wrapper_node src/wrapper_node.cc)
+target_link_libraries(mynteye_wrapper_node mynteye_wrapper ${LINK_LIBS})
 
-  include_directories(${libuvc_INCLUDE_DIRS})
-elseif(OS_LINUX)
-  set(UVC_SRC src/uvc/uvc-v4l2.cc)
-else()
-  message(FATAL_ERROR "Unsupported OS.")
-endif()
-
-set(MYNTEYE_SRCS
-  ${UVC_SRC}
-  src/internal/channels.cc
-  src/internal/config.cc
-  src/internal/dl.cc
-  src/internal/files.cc
-  src/internal/motions.cc
-  src/internal/streams.cc
-  src/internal/strings.cc
-  src/internal/types.cc
-  src/public/types.cc
-  src/public/utils.cc
-  src/device/context.cc
-  src/device/device.cc
-  src/device/device_s.cc
-)
-if(WITH_API)
-  list(APPEND MYNTEYE_SRCS
-    src/api/api.cc
-    src/api/synthetic.cc
-    src/api/processor/processor.cc
-    src/api/processor/rectify_processor.cc
-    src/api/processor/disparity_processor.cc
-    src/api/processor/disparity_normalized_processor.cc
-    src/api/processor/depth_processor.cc
-    src/api/processor/points_processor.cc
-  )
-endif()
-if(NOT WITH_GLOG)
-  list(APPEND MYNTEYE_SRCS src/public/miniglog.cc)
-endif()
-
-set(MYNTEYE_LINKLIBS ${UVC_LIB})
-if(WITH_API)
-  list(APPEND MYNTEYE_LINKLIBS ${OpenCV_LIBS})
-endif()
-if(WITH_BOOST_FILESYSTEM)
-  list(APPEND MYNTEYE_LINKLIBS ${Boost_LIBRARIES})
-endif()
-if(WITH_GLOG)
-  list(APPEND MYNTEYE_LINKLIBS glog::glog)
-endif()
-#message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
-
-add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
-target_link_libraries(${MYNTEYE_NAME} ${MYNTEYE_LINKLIBS})
-target_link_threads(${MYNTEYE_NAME})
-
-if(OS_WIN)
-  target_compile_definitions(${MYNTEYE_NAME}
+if(MSVC OR MSYS OR MINGW)
+  target_compile_definitions(mynteye_wrapper_node
     PUBLIC GLOG_NO_ABBREVIATED_SEVERITIES
   )
 endif()
 
-target_include_directories(${MYNTEYE_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-  "$<INSTALL_INTERFACE:${MYNTEYE_CMAKE_INCLUDE_DIR}>"
-)
-
-set_target_properties(${MYNTEYE_NAME} PROPERTIES
-  VERSION ${PROJECT_VERSION}
-  SOVERSION ${PROJECT_VERSION_MAJOR}
-)
-set_target_properties(${MYNTEYE_NAME} PROPERTIES
-  PUBLIC_HEADER "${MYNTEYE_PUBLIC_H}"
-)
-
 # install
 
-#message(STATUS "MYNTEYE_CMAKE_INCLUDE_DIR: ${MYNTEYE_CMAKE_INCLUDE_DIR}")
-#message(STATUS "MYNTEYE_CMAKE_BINDIR: ${MYNTEYE_CMAKE_BINDIR}")
-#message(STATUS "MYNTEYE_CMAKE_LIBDIR: ${MYNTEYE_CMAKE_LIBDIR}")
-#message(STATUS "MYNTEYE_CMAKE_INSTALLDIR: ${MYNTEYE_CMAKE_INSTALLDIR}")
+#install(PROGRAMS
+#  scripts/get_device_info.py
+#  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
 
-install(TARGETS ${MYNTEYE_NAME}
-  EXPORT ${MYNTEYE_NAME}-targets
-  PUBLIC_HEADER DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/${MYNTEYE_NAME}
-  RUNTIME DESTINATION ${MYNTEYE_CMAKE_BINDIR}
-  LIBRARY DESTINATION ${MYNTEYE_CMAKE_LIBDIR}
-  ARCHIVE DESTINATION ${MYNTEYE_CMAKE_LIBDIR}
+install(TARGETS mynteye_wrapper mynteye_wrapper_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-configure_package_config_file(mynteye-config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/mynteye-config.cmake
-  INSTALL_DESTINATION ${MYNTEYE_CMAKE_INSTALLDIR}
-  NO_CHECK_REQUIRED_COMPONENTS_MACRO
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
-write_basic_package_version_file(mynteye-config-version.cmake
-  VERSION ${PROJECT_VERSION} COMPATIBILITY SameMajorVersion
+install(DIRECTORY rviz/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/rviz
 )
 
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/mynteye-config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/mynteye-config-version.cmake
-  DESTINATION ${MYNTEYE_CMAKE_INSTALLDIR}
-)
-
-install(EXPORT ${MYNTEYE_NAME}-targets
-  DESTINATION ${MYNTEYE_CMAKE_INSTALLDIR}
-)
-
-## build.info
-
-# set default int values for yaml file (build.info)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_MAJOR 0)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_MINOR 0)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_PATCH 0)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_TWEAK 0)
-set_default_value(CUDA_VERSION_MAJOR 0)
-set_default_value(CUDA_VERSION_MINOR 0)
-set_default_value(OpenCV_VERSION_MAJOR 0)
-set_default_value(OpenCV_VERSION_MINOR 0)
-set_default_value(OpenCV_VERSION_PATCH 0)
-set_default_value(OpenCV_VERSION_TWEAK 0)
-set_default_value(${PROJECT_NAME}_VERSION_MAJOR 0)
-set_default_value(${PROJECT_NAME}_VERSION_MINOR 0)
-set_default_value(${PROJECT_NAME}_VERSION_PATCH 0)
-set_default_value(${PROJECT_NAME}_VERSION_TWEAK 0)
-
-configure_file(
-  cmake/templates/build.info.in
-  build.info @ONLY
-)
-
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/build.info
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/share/mynteye
+install(FILES nodelet_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
