@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>mynt_eye_ros_wrapper</name>
+  <name>ros_mynteye</name>
   <version>0.2.1</version>
   <description>The mynt eye ros wrapper package</description>
 
