@@ -7,8 +7,8 @@ Changelog for package libmynteye
 ------------------
 * first version
 
-Forthcoming
------------
+0.0.1 (2019-11-04)
+------------------
 * new version2
 * new version
 * Merge remote-tracking branch 'origin/master'
