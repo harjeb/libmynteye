@@ -43,6 +43,10 @@
 
   <arg name="gravity" default="9.8" />
 
+<<<<<<< HEAD
+=======
+  <arg name="mesh_file" default="S1030-0315.obj" />
+>>>>>>> master
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">
 
@@ -64,6 +68,10 @@
       <param name="disparity_norm_topic" value="$(arg disparity_norm_topic)" />
       <param name="points_topic" value="$(arg points_topic)" />
       <param name="depth_topic" value="$(arg depth_topic)" />
+<<<<<<< HEAD
+=======
+      <param name="mesh_file" value="$(arg mesh_file)" />
+>>>>>>> master
 
       <param name="left_mono_topic" value="$(arg left_mono_topic)" />
       <param name="right_mono_topic" value="$(arg right_mono_topic)" />
@@ -86,10 +94,15 @@
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard.yaml" command="load" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard2.yaml" command="load" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/process/process_config.yaml" command="load" />
+<<<<<<< HEAD
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/mesh/mesh.yaml" command="load" />
 
       <param name="gravity" value="$(arg gravity)" />
       <!-- <param name="ros_output_framerate_cut"     value="2" /> -->
+=======
+
+      <param name="gravity" value="$(arg gravity)" />
+>>>>>>> master
     </node>
 
     <!-- disable compressed depth plugin for image topics -->

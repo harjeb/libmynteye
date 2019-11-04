@@ -43,9 +43,12 @@
 #include "configuru.hpp"
 using namespace configuru;  // NOLINT
 
+<<<<<<< HEAD
 #define PIE 3.1416
 #define MATCH_CHECK_THRESHOLD 3
 
+=======
+>>>>>>> master
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
 
@@ -60,6 +63,7 @@ inline double compute_time(const double end, const double start) {
 
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
+<<<<<<< HEAD
   ROSWrapperNodelet() :
   mesh_position_x(0.),
   mesh_position_y(-0.176),
@@ -70,6 +74,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   skip_tag(-1),
   skip_tmp_left_tag(0),
   skip_tmp_right_tag(0) {
+=======
+  ROSWrapperNodelet() {
+    skip_tag = -1;
+    skip_tmp_left_tag = 0;
+    skip_tmp_right_tag = 0;
+>>>>>>> master
     unit_hard_time *= 10;
   }
 
@@ -316,6 +326,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::GYROSCOPE_RANGE, "standard/gyro_range"}};
     }
 
+<<<<<<< HEAD
     // device options of standard200b
     if (model_ == Model::STANDARD200B) {
     option_names_ = {
@@ -331,6 +342,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         {Option::GYROSCOPE_LOW_PASS_FILTER, "standard200b/gyro_low_filter"}};
     }
 
+=======
+>>>>>>> master
     for (auto &&it = option_names_.begin(); it != option_names_.end(); ++it) {
       if (!api_->Supports(it->first))
         continue;
@@ -357,9 +370,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
+<<<<<<< HEAD
     // Only STANDARD2/STANDARD210A/STANDARD200B need publish mono_topics
     if (model_ == Model::STANDARD2 ||
         model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+=======
+    // Only STANDARD2/STANDARD210A need publish mono_topics
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
+>>>>>>> master
       for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
         auto &&topic = mono_topics[it->first];
         if (it->first == Stream::LEFT ||
@@ -374,8 +392,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     int depth_type = 0;
     private_nh_.getParamCached("depth_type", depth_type);
+<<<<<<< HEAD
     if (model_ == Model::STANDARD2 ||
         model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+=======
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
+>>>>>>> master
       camera_encodings_ = {{Stream::LEFT, enc::BGR8},
                           {Stream::RIGHT, enc::BGR8},
                           {Stream::LEFT_RECTIFIED, enc::BGR8},
@@ -413,7 +435,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
     // where to get the mesh from
     std::string mesh_file;
+<<<<<<< HEAD
     if (private_nh_.getParamCached("s1030_mesh_file", mesh_file)) {
+=======
+    if (private_nh_.getParamCached("mesh_file", mesh_file)) {
+>>>>>>> master
       mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
     } else {
       LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
@@ -714,12 +740,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   skip_tmp_left_tag--;
                   return;
                 }
+<<<<<<< HEAD
                 if (left_timestamps.size() < MATCH_CHECK_THRESHOLD) {
                   left_timestamps.insert(left_timestamps.begin(), data.img->timestamp);
                 } else {
                   left_timestamps.insert(left_timestamps.begin(), data.img->timestamp);
                   left_timestamps.pop_back();
                 }
+=======
+>>>>>>> master
               }
               publishCamera(Stream::LEFT, data, left_count_, stamp);
               publishMono(Stream::LEFT, data, left_count_, stamp);
@@ -752,6 +781,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   skip_tmp_right_tag--;
                   return;
                 }
+<<<<<<< HEAD
                 if (right_timestamps.size() < MATCH_CHECK_THRESHOLD) {
                   right_timestamps.insert(right_timestamps.begin(), data.img->timestamp);
                 } else {
@@ -775,6 +805,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                     skip_tmp_right_tag++;
                   }
                 }
+=======
+>>>>>>> master
               }
               publishCamera(Stream::RIGHT, data, right_count_, stamp);
               publishMono(Stream::RIGHT, data, right_count_, stamp);
@@ -877,7 +909,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pthread_mutex_unlock(&mutex_data_);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
+<<<<<<< HEAD
     info->header.frame_id = frame_ids_[stream];
+=======
+>>>>>>> master
     camera_publishers_[stream].publish(msg, info);
   }
 
@@ -1156,8 +1191,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     int request_index = 0;
 
     model_ = api_->GetModel();
+<<<<<<< HEAD
     if (model_ == Model::STANDARD2 ||
         model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+=======
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
+>>>>>>> master
       private_nh_.getParamCached("standard2/request_index", request_index);
       switch (request_index) {
         case 0:
@@ -1184,7 +1223,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     std::int32_t process_mode = 0;
     if (model_ == Model::STANDARD2 ||
+<<<<<<< HEAD
         model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+=======
+        model_ == Model::STANDARD210A) {
+>>>>>>> master
       private_nh_.getParamCached("standard2/imu_process_mode", process_mode);
       api_->EnableProcessMode(process_mode);
     }
@@ -1309,6 +1352,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.header.stamp = ros::Time::now();
     mesh_msg_.type = visualization_msgs::Marker::MESH_RESOURCE;
     geometry_msgs::Quaternion q;
+<<<<<<< HEAD
     private_nh_.getParamCached("model_rotation_x",
         mesh_rotation_x);
     private_nh_.getParamCached("model_rotation_y",
@@ -1326,6 +1370,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         mesh_rotation_x,
         mesh_rotation_y,
         mesh_rotation_z);
+=======
+    double Pie = 3.1416;
+    q = tf::createQuaternionMsgFromRollPitchYaw(Pie/2, 0.0, Pie/2);
+>>>>>>> master
 
     // fill orientation
     mesh_msg_.pose.orientation.x = q.x;
@@ -1334,9 +1382,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.pose.orientation.w = q.w;
 
     // fill position
+<<<<<<< HEAD
     mesh_msg_.pose.position.x = mesh_position_x;
     mesh_msg_.pose.position.y = mesh_position_y;
     mesh_msg_.pose.position.z = mesh_position_z;
+=======
+    mesh_msg_.pose.position.x = 0;
+    mesh_msg_.pose.position.y = 0;
+    mesh_msg_.pose.position.z = 0;
+>>>>>>> master
 
     // scale -- needed
     mesh_msg_.scale.x = 0.003;
@@ -1423,7 +1477,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           stream == Stream::RIGHT_RECTIFIED) {
         if (info_pair->right.distortion_model == "KANNALA_BRANDT") {
           camera_info->distortion_model = "KANNALA_BRANDT";
+<<<<<<< HEAD
           for (size_t i = 0; i < 5; i++) {
+=======
+          for (size_t i = 0; i < 4; i++) {
+>>>>>>> master
             camera_info->D.push_back(info_pair->right.D[i]);
           }
         } else if (info_pair->right.distortion_model == "PINHOLE") {
@@ -1448,7 +1506,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           private_nh_.getParamCached("is_laserscan", is_laserscan);
           if (!is_laserscan) {
             camera_info->distortion_model = "KANNALA_BRANDT";
+<<<<<<< HEAD
             for (size_t i = 0; i < 5; i++) {
+=======
+            for (size_t i = 0; i < 4; i++) {
+>>>>>>> master
               camera_info->D.push_back(info_pair->left.D[i]);
             }
           } else {
@@ -1605,6 +1667,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     l2i_msg.header.stamp = tf_stamp;
     l2i_msg.header.frame_id = frame_ids_[Stream::LEFT];
     l2i_msg.child_frame_id = imu_frame_id_;
+<<<<<<< HEAD
     bool is_data_use_mm_instead_of_m = abs(l2i_ex.translation[0]) > 1.0 ||
                                        abs(l2i_ex.translation[1]) > 1.0 ||
                                        abs(l2i_ex.translation[2]) > 1.0;
@@ -1623,6 +1686,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     //           << l2i_msg.transform.translation.y << std::endl
     //           << "l2i_msg.transform.translation.z: "
     //           << l2i_msg.transform.translation.z << std::endl;
+=======
+    l2i_msg.transform.translation.x = l2i_ex.translation[0];
+    l2i_msg.transform.translation.y = l2i_ex.translation[1];
+    l2i_msg.transform.translation.z = l2i_ex.translation[2];
+>>>>>>> master
     if (l2i_ex.rotation[0][0] == 0 && l2i_ex.rotation[2][2] == 0) {
       l2i_msg.transform.rotation.x = 0;
       l2i_msg.transform.rotation.y = 0;
@@ -1718,6 +1786,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   int skip_tag;
   int skip_tmp_left_tag;
   int skip_tmp_right_tag;
+<<<<<<< HEAD
   double mesh_rotation_x;
   double mesh_rotation_y;
   double mesh_rotation_z;
@@ -1726,6 +1795,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   double mesh_position_z;
   std::vector<int64_t> left_timestamps;
   std::vector<int64_t> right_timestamps;
+=======
+>>>>>>> master
 
   std::uint64_t unit_hard_time = std::numeric_limits<std::uint32_t>::max();
 };
