@@ -7,6 +7,17 @@ Changelog for package libmynteye
 ------------------
 * first version
 
+Forthcoming
+-----------
+* new version2
+* new version
+* Merge remote-tracking branch 'origin/master'
+  # Conflicts:
+  #	CHANGELOG.rst
+  #	package.xml
+* first commit
+* Contributors: harjeb
+
 0.1.1 (2018-09-06)
 ------------------
 * modify package version
