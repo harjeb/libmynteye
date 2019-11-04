@@ -7,7 +7,11 @@
 
   <!-- serial_number -->
   <!-- if is_mutiple is true, must set serial_number -->
+<<<<<<< HEAD
+  <arg name="serial_number" default="[wait to input target device2 SN here]" />
+=======
   <arg name="serial_number" default="07C4061B0009071F" />
+>>>>>>> master
 
   <!-- depth_type  0: MONO16, 1: TYPE_16UC1 -->
   <arg name="depth_type" default="0" />
@@ -43,7 +47,10 @@
 
   <arg name="gravity" default="9.8" />
 
+<<<<<<< HEAD
+=======
   <arg name="mesh_file" default="S1030-0315.obj" />
+>>>>>>> master
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">
 
@@ -65,7 +72,10 @@
       <param name="disparity_norm_topic" value="$(arg disparity_norm_topic)" />
       <param name="points_topic" value="$(arg points_topic)" />
       <param name="depth_topic" value="$(arg depth_topic)" />
+<<<<<<< HEAD
+=======
       <param name="mesh_file" value="$(arg mesh_file)" />
+>>>>>>> master
 
       <param name="left_mono_topic" value="$(arg left_mono_topic)" />
       <param name="right_mono_topic" value="$(arg right_mono_topic)" />
@@ -88,6 +98,10 @@
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/device_2/standard.yaml" command="load" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/device_2/standard2.yaml" command="load" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/process_2/process_config.yaml" command="load" />
+<<<<<<< HEAD
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/mesh_2/mesh.yaml" command="load" />
+=======
+>>>>>>> master
 
       <param name="gravity" value="$(arg gravity)" />
     </node>
