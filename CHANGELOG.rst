@@ -14,3 +14,7 @@ Changelog for package libmynteye
 0.1.5 (2019-11-04)
 ------------------
 * SDK2.0
+
+0.2.3 (2019-11-11)
+------------------
+* update package
