@@ -26,3 +26,4 @@ Changelog for package libmynteye
 0.2.5 (2019-11-13)
 ------------------
 * fix cmake path
+
