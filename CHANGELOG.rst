@@ -18,3 +18,7 @@ Changelog for package libmynteye
 0.2.3 (2019-11-11)
 ------------------
 * update package
+
+0.2.4 (2019-11-13)
+------------------
+* add MYNT-EYE-S-SDK lib
