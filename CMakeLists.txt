@@ -71,10 +71,10 @@ catkin_package(
   CATKIN_DEPENDS cv_bridge geometry_msgs image_transport message_runtime nodelet roscpp sensor_msgs std_msgs tf
 )
 
-#get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
-#LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
+get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}" ABSOLUTE)
+LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/third_party/mynteye_install/lib/cmake)
 
-LIST(APPEND CMAKE_MODULE_PATH cmake)
+#LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
