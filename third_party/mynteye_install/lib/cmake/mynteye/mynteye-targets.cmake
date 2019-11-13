@@ -38,8 +38,16 @@ unset(_targetsNotDefined)
 unset(_expectedTargets)
 
 
+if(NOT MYNTEYES_SDK_ROOT)
+  if(DEFINED ENV{MYNTEYES_SDK_ROOT})
+    set(MYNTEYES_SDK_ROOT $ENV{MYNTEYES_SDK_ROOT})
+  else()
+    get_filename_component(MYNTEYES_SDK_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
+  endif()
+endif()
+
 # The installation prefix configured by this project.
-set(_IMPORT_PREFIX "/home/mynt/MYNT-EYE-S-SDK/_install")
+set(_IMPORT_PREFIX "${MYNTEYES_SDK_ROOT}")
 
 # Create imported target mynteye
 add_library(mynteye SHARED IMPORTED)
