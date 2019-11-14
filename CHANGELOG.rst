@@ -27,3 +27,6 @@ Changelog for package libmynteye
 ------------------
 * fix cmake path
 
+0.2.6 (2019-11-14)
+------------------
+* remove 3D obj
