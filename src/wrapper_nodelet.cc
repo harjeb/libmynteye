@@ -21,8 +21,6 @@
 #include <sensor_msgs/Temperature.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
-#include <sensor_msgs/distortion_models.h>
-#include <visualization_msgs/Marker.h>
 #include <tf/tf.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
@@ -410,16 +408,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                         sensor_msgs::Temperature>(temperature_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << temperature_topic);
 
-    pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
-    // where to get the mesh from
-    std::string mesh_file;
-    if (private_nh_.getParamCached("s1030_mesh_file", mesh_file)) {
-      mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
-    } else {
-      LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
-      mesh_msg_.mesh_resource = "";
-    }
-
     // stream toggles
 
     for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
@@ -696,7 +684,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
-    publishMesh();
+    // publishMesh();
     if ((camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 ||
         mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
         !is_published_[Stream::LEFT]) {
@@ -1304,58 +1292,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     return res;
   }
 
-  void publishMesh() {
-    mesh_msg_.header.frame_id = base_frame_id_;
-    mesh_msg_.header.stamp = ros::Time::now();
-    mesh_msg_.type = visualization_msgs::Marker::MESH_RESOURCE;
-    geometry_msgs::Quaternion q;
-    private_nh_.getParamCached("model_rotation_x",
-        mesh_rotation_x);
-    private_nh_.getParamCached("model_rotation_y",
-        mesh_rotation_y);
-    private_nh_.getParamCached("model_rotation_z",
-        mesh_rotation_z);
-    private_nh_.getParamCached("model_position_x",
-        mesh_position_x);
-    private_nh_.getParamCached("model_position_y",
-        mesh_position_y);
-    private_nh_.getParamCached("model_position_z",
-        mesh_position_z);
-
-    q = tf::createQuaternionMsgFromRollPitchYaw(
-        mesh_rotation_x,
-        mesh_rotation_y,
-        mesh_rotation_z);
-
-    // fill orientation
-    mesh_msg_.pose.orientation.x = q.x;
-    mesh_msg_.pose.orientation.y = q.y;
-    mesh_msg_.pose.orientation.z = q.z;
-    mesh_msg_.pose.orientation.w = q.w;
-
-    // fill position
-    mesh_msg_.pose.position.x = mesh_position_x;
-    mesh_msg_.pose.position.y = mesh_position_y;
-    mesh_msg_.pose.position.z = mesh_position_z;
-
-    // scale -- needed
-    mesh_msg_.scale.x = 0.003;
-    mesh_msg_.scale.y = 0.003;
-    mesh_msg_.scale.z = 0.003;
-
-    mesh_msg_.action = visualization_msgs::Marker::ADD;
-    mesh_msg_.color.a = 0.5;  // Don't forget to set the alpha!
-    mesh_msg_.color.r = 1.0;
-    mesh_msg_.color.g = 1.0;
-    mesh_msg_.color.b = 1.0;
-
-    // embedded material / colour
-    // mesh_msg_.mesh_use_embedded_materials = true;
-    if (!mesh_msg_.mesh_resource.empty())
-      pub_mesh_.publish(mesh_msg_);  // publish stamped mesh
-  }
-
-
   void computeRectTransforms() {
     ROS_ASSERT(api_);
     auto in_left_base = api_->GetIntrinsicsBase(Stream::LEFT);
@@ -1671,9 +1607,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   ros::Publisher pub_imu_;
   ros::Publisher pub_temperature_;
-
-  ros::Publisher pub_mesh_;  // < The publisher for camera mesh.
-  visualization_msgs::Marker mesh_msg_;  // < Mesh message.
 
   tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
 
