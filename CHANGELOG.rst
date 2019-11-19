@@ -30,3 +30,8 @@ Changelog for package libmynteye
 0.2.6 (2019-11-14)
 ------------------
 * remove 3D obj
+
+2.0.0 (2019-11-19)
+------------------
+* melodic version
+

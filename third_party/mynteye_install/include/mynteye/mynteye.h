@@ -58,8 +58,8 @@ MYNTEYE_API_VERSION_CHECK( \
 # define MYNTEYE_USE_NAMESPACE
 #endif
 
-const char MYNTEYE_SDK_ROOT_DIR[] = "/home/mynt/MYNT-EYE-S-SDK";
-const char MYNTEYE_SDK_INSTALL_DIR[] = "/home/mynt/MYNT-EYE-S-SDK/_install";
+const char MYNTEYE_SDK_ROOT_DIR[] = "/home/cwa/mynt-eye-s-sdk";
+const char MYNTEYE_SDK_INSTALL_DIR[] = "/home/cwa/mynt-eye-s-sdk/_install";
 
 MYNTEYE_BEGIN_NAMESPACE
 
