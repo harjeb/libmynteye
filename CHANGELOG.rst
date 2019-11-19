@@ -22,3 +22,7 @@ Changelog for package libmynteye
 0.2.4 (2019-11-13)
 ------------------
 * add MYNT-EYE-S-SDK lib
+
+0.2.7 (2019-11-19)
+------------------
+* use static lib instead
