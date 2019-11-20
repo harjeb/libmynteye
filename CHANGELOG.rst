@@ -26,3 +26,7 @@ Changelog for package libmynteye
 0.2.7 (2019-11-19)
 ------------------
 * use static lib instead
+
+0.2.8 (2019-11-20)
+------------------
+* remove mesh
